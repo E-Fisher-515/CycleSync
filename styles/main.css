@@ -170,9 +170,10 @@ a:hover {
 
 .nav-link:hover,
 .nav-link.active {
-    color: var(--primary-color);
-    background-color: var(--primary-color);
     color: var(--white);
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-toggle {
@@ -487,6 +488,24 @@ a:hover {
     box-shadow: var(--shadow-lg);
     padding: var(--spacing-md);
     gap: var(--spacing-sm);
+    z-index: 99;
+    border-top: 1px solid var(--gray-200);
+}
+
+.nav-menu.active .nav-link {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.nav-menu.active .nav-link:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+}
+
+.nav-menu.active .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--white);
 }
 
 .nav-toggle.active .bar:nth-child(1) {
