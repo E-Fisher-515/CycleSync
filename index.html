@@ -3,25 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CycleSync - A modern web application for tracking and synchronizing menstrual cycles with cycle-aware wellness features">
-    <meta name="keywords" content="cycle tracking, menstrual health, wellness, fasting, calorie tracking, PCOS, birth control">
-    <meta name="author" content="CycleSync">
     <title>CycleSync - Cycle-Aware Wellness App</title>
-    
-    <!-- CSS -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Header Navigation -->
+    <!-- Header -->
     <header class="header">
         <nav class="nav">
             <div class="nav-brand">
@@ -50,37 +41,25 @@
             <div class="container">
                 <h2 class="section-title">Dashboard</h2>
                 <div class="dashboard-grid">
-                    <div class="card cycle-phase-card">
-                        <h3>Current Phase</h3>
-                        <div class="phase-indicator">
-                            <span class="phase-name">Follicular Phase</span>
-                            <div class="phase-progress">
-                                <div class="progress-bar" style="width: 65%"></div>
-                            </div>
-                            <p class="phase-description">Increased energy and creativity</p>
-                        </div>
+                    <div class="card">
+                        <h3><i class="fas fa-calendar-alt"></i> Current Cycle</h3>
+                        <p class="card-value">Day 14</p>
+                        <p class="card-subtitle">Ovulation Phase</p>
                     </div>
-                    
-                    <div class="card fasting-card">
-                        <h3>Fasting Timer</h3>
-                        <div class="timer-display">
-                            <span class="timer">00:00:00</span>
-                            <div class="timer-controls">
-                                <button class="btn btn-primary" id="startFast">Start Fast</button>
-                                <button class="btn btn-secondary" id="stopFast" disabled>Stop Fast</button>
-                            </div>
-                        </div>
+                    <div class="card">
+                        <h3><i class="fas fa-heart"></i> Energy Level</h3>
+                        <p class="card-value">High</p>
+                        <p class="card-subtitle">Peak performance time</p>
                     </div>
-                    
-                    <div class="card calorie-card">
-                        <h3>Today's Calories</h3>
-                        <div class="calorie-display">
-                            <span class="calorie-count">0</span>
-                            <span class="calorie-target">/ 1,850</span>
-                            <div class="calorie-progress">
-                                <div class="progress-bar" style="width: 0%"></div>
-                            </div>
-                        </div>
+                    <div class="card">
+                        <h3><i class="fas fa-utensils"></i> Fasting Status</h3>
+                        <p class="card-value">16:8</p>
+                        <p class="card-subtitle">16 hours fasting, 8 hours eating</p>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-fire"></i> Calories Today</h3>
+                        <p class="card-value">1,850</p>
+                        <p class="card-subtitle">Goal: 2,000</p>
                     </div>
                 </div>
             </div>
@@ -90,18 +69,29 @@
         <section id="cycle-tracker" class="section">
             <div class="container">
                 <h2 class="section-title">Cycle Tracker</h2>
-                <div class="cycle-controls">
-                    <button class="btn btn-primary" id="logPeriod">Log Period Start</button>
-                    <button class="btn btn-secondary" id="logSymptoms">Log Symptoms</button>
-                </div>
-                <div class="calendar-container">
-                    <div class="calendar-header">
-                        <button class="btn btn-icon" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                        <h3 id="currentMonth">August 2024</h3>
-                        <button class="btn btn-icon" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                <div class="cycle-overview">
+                    <div class="card">
+                        <h3>Current Cycle Information</h3>
+                        <div class="cycle-stats">
+                            <div class="stat">
+                                <span class="stat-label">Cycle Day:</span>
+                                <span class="stat-value">14</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Phase:</span>
+                                <span class="stat-value">Ovulation</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Next Period:</span>
+                                <span class="stat-value">14 days</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">Log Period</button>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Calendar will be populated by JavaScript -->
+                    <div class="card">
+                        <h3>Cycle History</h3>
+                        <p>Track your cycles over time to identify patterns and optimize your wellness routine.</p>
+                        <button class="btn btn-secondary">View History</button>
                     </div>
                 </div>
             </div>
@@ -111,20 +101,22 @@
         <section id="fasting" class="section">
             <div class="container">
                 <h2 class="section-title">Fasting Tracker</h2>
-                <div class="fasting-setup">
-                    <div class="fasting-presets">
-                        <h3>Recommended Windows</h3>
-                        <div class="preset-buttons">
-                            <button class="btn btn-outline" data-window="14:10">14:10</button>
-                            <button class="btn btn-outline" data-window="16:8">16:8</button>
-                            <button class="btn btn-outline" data-window="18:6">18:6</button>
+                <div class="fasting-overview">
+                    <div class="card">
+                        <h3>Current Fast</h3>
+                        <div class="fasting-timer">
+                            <div class="timer-display">16:42:15</div>
+                            <p class="timer-label">Hours:Minutes:Seconds</p>
+                        </div>
+                        <div class="fasting-controls">
+                            <button class="btn btn-success">Start Fast</button>
+                            <button class="btn btn-danger">End Fast</button>
                         </div>
                     </div>
-                    <div class="fasting-history">
-                        <h3>Recent Fasts</h3>
-                        <div class="fast-list" id="fastList">
-                            <!-- Fasting history will be populated by JavaScript -->
-                        </div>
+                    <div class="card">
+                        <h3>Fasting Goals</h3>
+                        <p>Set and track your fasting goals to optimize your metabolic health.</p>
+                        <button class="btn btn-secondary">Set Goals</button>
                     </div>
                 </div>
             </div>
@@ -134,14 +126,29 @@
         <section id="calories" class="section">
             <div class="container">
                 <h2 class="section-title">Calorie Tracker</h2>
-                <div class="calorie-input">
-                    <input type="number" id="calorieInput" placeholder="Enter calories" class="input">
-                    <button class="btn btn-primary" id="addCalories">Add</button>
-                </div>
-                <div class="calorie-log">
-                    <h3>Today's Log</h3>
-                    <div class="food-list" id="foodList">
-                        <!-- Food items will be populated by JavaScript -->
+                <div class="calorie-overview">
+                    <div class="card">
+                        <h3>Today's Nutrition</h3>
+                        <div class="calorie-stats">
+                            <div class="stat">
+                                <span class="stat-label">Calories:</span>
+                                <span class="stat-value">1,850 / 2,000</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Protein:</span>
+                                <span class="stat-value">85g / 100g</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Carbs:</span>
+                                <span class="stat-value">180g / 200g</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">Log Food</button>
+                    </div>
+                    <div class="card">
+                        <h3>Nutrition Goals</h3>
+                        <p>Track your daily nutrition to support your cycle-aware wellness goals.</p>
+                        <button class="btn btn-secondary">Set Goals</button>
                     </div>
                 </div>
             </div>
@@ -150,29 +157,31 @@
         <!-- Symptoms Section -->
         <section id="symptoms" class="section">
             <div class="container">
-                <h2 class="section-title">Symptom Tracker</h3>
-                <div class="symptom-form">
-                    <div class="form-group">
-                        <label for="symptomType">Symptom Type</label>
-                        <select id="symptomType" class="select">
-                            <option value="">Select symptom...</option>
-                            <option value="mood">Mood</option>
-                            <option value="cramps">Cramps</option>
-                            <option value="energy">Energy Level</option>
-                            <option value="cravings">Cravings</option>
-                            <option value="discharge">Discharge</option>
-                        </select>
+                <h2 class="section-title">Symptom Tracker</h2>
+                <div class="symptom-overview">
+                    <div class="card">
+                        <h3>Today's Symptoms</h3>
+                        <div class="symptom-list">
+                            <div class="symptom-item">
+                                <span class="symptom-name">Energy Level</span>
+                                <span class="symptom-rating">High</span>
+                            </div>
+                            <div class="symptom-item">
+                                <span class="symptom-name">Mood</span>
+                                <span class="symptom-rating">Good</span>
+                            </div>
+                            <div class="symptom-item">
+                                <span class="symptom-name">Cramps</span>
+                                <span class="symptom-rating">None</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">Log Symptoms</button>
                     </div>
-                    <div class="form-group">
-                        <label for="symptomIntensity">Intensity (1-10)</label>
-                        <input type="range" id="symptomIntensity" min="1" max="10" value="5" class="range">
-                        <span id="intensityValue">5</span>
+                    <div class="card">
+                        <h3>Symptom Patterns</h3>
+                        <p>Track symptoms over time to identify patterns and optimize your wellness routine.</p>
+                        <button class="btn btn-secondary">View Patterns</button>
                     </div>
-                    <div class="form-group">
-                        <label for="symptomNotes">Notes</label>
-                        <textarea id="symptomNotes" placeholder="Additional notes..." class="textarea"></textarea>
-                    </div>
-                    <button class="btn btn-primary" id="logSymptom">Log Symptom</button>
                 </div>
             </div>
         </section>
@@ -181,18 +190,21 @@
         <section id="insights" class="section">
             <div class="container">
                 <h2 class="section-title">Insights & Education</h2>
-                <div class="insights-grid">
-                    <div class="card insight-card">
-                        <h3>Why your appetite feels high today</h3>
-                        <p>During the luteal phase, progesterone increases, which can lead to increased hunger and cravings. This is completely normal!</p>
+                <div class="insights-overview">
+                    <div class="card">
+                        <h3>Cycle Insights</h3>
+                        <p>Based on your data, you're currently in your ovulation phase. This is an excellent time for:</p>
+                        <ul class="insight-list">
+                            <li>High-intensity workouts</li>
+                            <li>Social activities</li>
+                            <li>Creative projects</li>
+                            <li>Goal setting and planning</li>
+                        </ul>
                     </div>
-                    <div class="card insight-card">
-                        <h3>Fasting Safety in PCOS</h3>
-                        <p>If you have PCOS, consider shorter fasting windows (12-14 hours) to maintain stable blood sugar levels.</p>
-                    </div>
-                    <div class="card insight-card">
-                        <h3>Cycle-Aware Nutrition</h3>
-                        <p>Focus on iron-rich foods during menstruation and complex carbs during the luteal phase for better energy.</p>
+                    <div class="card">
+                        <h3>Educational Resources</h3>
+                        <p>Learn more about cycle-aware wellness and how to optimize your health throughout your cycle.</p>
+                        <button class="btn btn-secondary">Browse Resources</button>
                     </div>
                 </div>
             </div>
@@ -202,15 +214,250 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 CycleSync. All rights reserved.</p>
+            <p>&copy; 2024 CycleSync. Empowering cycle-aware wellness.</p>
         </div>
     </footer>
 
     <!-- JavaScript -->
-    <script src="js/app.js" type="module"></script>
-    <script src="js/cycleTracker.js" type="module"></script>
-    <script src="js/fastingTracker.js" type="module"></script>
-    <script src="js/calorieTracker.js" type="module"></script>
-    <script src="js/symptomTracker.js" type="module"></script>
+    <script>
+        /**
+         * CycleSync - Main Application File
+         * Handles navigation, app initialization, and core functionality
+         * FISH-10: Core Navigation and App Structure
+         */
+
+        class CycleSyncApp {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.isInitialized = false;
+                // Don't call init() here - wait for DOM to be ready
+            }
+
+            init() {
+                try {
+                    // Wait a bit to ensure DOM is fully ready
+                    setTimeout(() => {
+                        this.setupNavigation();
+                        this.setupMobileMenu();
+                        this.setupEventListeners();
+                        this.handleInitialRoute();
+                        this.showSection(this.currentSection);
+                        this.isInitialized = true;
+                        console.log('✅ CycleSync app initialized successfully');
+                        this.logNavigationStatus();
+                        
+                        // Make app globally accessible for debugging
+                        window.cycleSyncApp = this;
+                    }, 100);
+                } catch (error) {
+                    console.error('❌ Failed to initialize CycleSync app:', error);
+                }
+            }
+
+            setupNavigation() {
+                // Get all navigation links
+                this.navLinks = document.querySelectorAll('.nav-link');
+                this.sections = document.querySelectorAll('.section');
+                
+                if (this.navLinks.length === 0) {
+                    throw new Error('No navigation links found');
+                }
+                
+                if (this.sections.length === 0) {
+                    throw new Error('No sections found');
+                }
+                
+                // Add click event listeners to navigation
+                this.navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetSection = link.getAttribute('href').substring(1);
+                        this.navigateToSection(targetSection);
+                    });
+                });
+                
+                console.log(`✅ Navigation setup complete: ${this.navLinks.length} links, ${this.sections.length} sections`);
+            }
+
+            setupMobileMenu() {
+                const navToggle = document.querySelector('.nav-toggle');
+                const navMenu = document.querySelector('.nav-menu');
+                
+                if (navToggle && navMenu) {
+                    navToggle.addEventListener('click', () => {
+                        navMenu.classList.toggle('active');
+                        navToggle.classList.toggle('active');
+                        console.log('📱 Mobile menu toggled');
+                    });
+                    console.log('✅ Mobile menu setup complete');
+                } else {
+                    console.warn('⚠️ Mobile menu elements not found');
+                }
+            }
+
+            setupEventListeners() {
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    const nav = document.querySelector('.nav');
+                    const navToggle = document.querySelector('.nav-toggle');
+                    
+                    if (!nav.contains(e.target) && navToggle && navToggle.classList.contains('active')) {
+                        navToggle.classList.remove('active');
+                        document.querySelector('.nav-menu').classList.remove('active');
+                    }
+                });
+
+                // Handle window resize for mobile menu
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        const navMenu = document.querySelector('.nav-menu');
+                        const navToggle = document.querySelector('.nav-toggle');
+                        if (navMenu && navToggle) {
+                            navMenu.classList.remove('active');
+                            navToggle.classList.remove('active');
+                        }
+                    }
+                });
+
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', (e) => {
+                    if (e.state && e.state.section) {
+                        this.navigateToSection(e.state.section, false);
+                    }
+                });
+
+                console.log('✅ Event listeners setup complete');
+            }
+
+            handleInitialRoute() {
+                // Check if there's a hash in the URL
+                const hash = window.location.hash.substring(1);
+                if (hash && this.isValidSection(hash)) {
+                    this.currentSection = hash;
+                    console.log(`📍 Initial route detected: ${hash}`);
+                } else {
+                    console.log(`📍 Using default route: ${this.currentSection}`);
+                }
+            }
+
+            isValidSection(sectionId) {
+                return Array.from(this.sections).some(section => section.id === sectionId);
+            }
+
+            navigateToSection(sectionId, updateHistory = true) {
+                if (!this.isValidSection(sectionId)) {
+                    console.error(`❌ Invalid section: ${sectionId}`);
+                    return;
+                }
+
+                console.log(`🔄 Navigating to section: ${sectionId}`);
+
+                // Update navigation active state
+                this.navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Show the target section
+                this.showSection(sectionId);
+                
+                // Update current section
+                this.currentSection = sectionId;
+                
+                // Close mobile menu if open
+                const navMenu = document.querySelector('.nav-menu');
+                const navToggle = document.querySelector('.nav-toggle');
+                if (navMenu && navToggle && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                }
+
+                // Update URL hash and history
+                if (updateHistory) {
+                    history.pushState({ section: sectionId }, '', `#${sectionId}`);
+                }
+
+                console.log(`✅ Navigation complete: ${sectionId}`);
+            }
+
+            showSection(sectionId) {
+                // Hide all sections
+                this.sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    console.log(`✅ Section displayed: ${sectionId}`);
+                } else {
+                    console.error(`❌ Section not found: ${sectionId}`);
+                }
+            }
+
+            // Utility method to get current section
+            getCurrentSection() {
+                return this.currentSection;
+            }
+
+            // Method to refresh current section
+            refreshCurrentSection() {
+                this.showSection(this.currentSection);
+            }
+
+            // Method to test navigation functionality
+            testNavigation() {
+                console.log('🧪 Testing navigation functionality...');
+                
+                const testResults = {
+                    totalSections: this.sections.length,
+                    totalNavLinks: this.navLinks.length,
+                    currentSection: this.currentSection,
+                    isInitialized: this.isInitialized
+                };
+
+                // Test each section
+                this.sections.forEach(section => {
+                    const sectionId = section.id;
+                    const hasNavLink = Array.from(this.navLinks).some(link => 
+                        link.getAttribute('href') === `#${sectionId}`
+                    );
+                    testResults[sectionId] = {
+                        exists: true,
+                        hasNavLink: hasNavLink
+                    };
+                });
+
+                console.log('📊 Navigation test results:', testResults);
+                return testResults;
+            }
+
+            // Log current navigation status
+            logNavigationStatus() {
+                console.log('📋 Current Navigation Status:');
+                console.log(`   Current Section: ${this.currentSection}`);
+                console.log(`   Total Sections: ${this.sections.length}`);
+                console.log(`   Total Nav Links: ${this.navLinks.length}`);
+                console.log(`   App Initialized: ${this.isInitialized}`);
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new CycleSyncApp();
+            app.init();
+            
+            // Add global test function for debugging
+            window.testCycleSyncNavigation = () => {
+                if (window.cycleSyncApp) {
+                    return window.cycleSyncApp.testNavigation();
+                }
+                return null;
+            };
+        });
+    </script>
 </body>
 </html>
