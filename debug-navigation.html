@@ -3,16 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CycleSync - Cycle-Aware Wellness App</title>
+    <title>CycleSync - Navigation Debug</title>
     <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/components.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-width: 350px;
+            font-size: 12px;
+        }
+        .debug-button {
+            display: block;
+            width: 100%;
+            margin: var(--spacing-sm) 0;
+            padding: var(--spacing-sm);
+            background: var(--info);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+        .debug-button:hover {
+            background: var(--primary-color);
+        }
+        .debug-info {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+        }
+        .section-debug {
+            border: 2px solid var(--gray-300);
+            margin: var(--spacing-sm) 0;
+            padding: var(--spacing-sm);
+        }
+        .section-debug.active {
+            border-color: var(--success);
+            background: var(--gray-50);
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h3>🐛 Navigation Debug</h3>
+        <button class="debug-button" onclick="debugNavigation()">Debug Navigation</button>
+        <button class="debug-button" onclick="forceShowSection('dashboard')">Show Dashboard</button>
+        <button class="debug-button" onclick="forceShowSection('cycle-tracker')">Show Cycle Tracker</button>
+        <button class="debug-button" onclick="forceShowSection('fasting')">Show Fasting</button>
+        <button class="debug-button" onclick="clearConsole()">Clear Console</button>
+        <div class="debug-info" id="debugInfo">
+            Click debug button to see info...
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
     <header class="header">
         <nav class="nav">
             <div class="nav-brand">
@@ -37,176 +89,62 @@
     <!-- Main Content -->
     <main class="main">
         <!-- Dashboard Section -->
-        <section id="dashboard" class="section active">
+        <section id="dashboard" class="section active section-debug">
             <div class="container">
                 <h2 class="section-title">Dashboard</h2>
+                <p>This is the Dashboard section. ID: dashboard</p>
                 <div class="dashboard-grid">
                     <div class="card">
-                        <h3><i class="fas fa-calendar-alt"></i> Current Cycle</h3>
-                        <p class="card-value">Day 14</p>
-                        <p class="card-subtitle">Ovulation Phase</p>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-heart"></i> Energy Level</h3>
-                        <p class="card-value">High</p>
-                        <p class="card-subtitle">Peak performance time</p>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-utensils"></i> Fasting Status</h3>
-                        <p class="card-value">16:8</p>
-                        <p class="card-subtitle">16 hours fasting, 8 hours eating</p>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-fire"></i> Calories Today</h3>
-                        <p class="card-value">1,850</p>
-                        <p class="card-subtitle">Goal: 2,000</p>
+                        <h3>Navigation Debug</h3>
+                        <p>Current section should be: <strong id="currentSectionDisplay">dashboard</strong></p>
+                        <p>Section classes: <span id="dashboardClasses">dashboard classes</span></p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Cycle Tracker Section -->
-        <section id="cycle-tracker" class="section">
+        <section id="cycle-tracker" class="section section-debug">
             <div class="container">
                 <h2 class="section-title">Cycle Tracker</h2>
-                <div class="cycle-overview">
-                    <div class="card">
-                        <h3>Current Cycle Information</h3>
-                        <div class="cycle-stats">
-                            <div class="stat">
-                                <span class="stat-label">Cycle Day:</span>
-                                <span class="stat-value">14</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Phase:</span>
-                                <span class="stat-value">Ovulation</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Next Period:</span>
-                                <span class="stat-value">14 days</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Log Period</button>
-                    </div>
-                    <div class="card">
-                        <h3>Cycle History</h3>
-                        <p>Track your cycles over time to identify patterns and optimize your wellness routine.</p>
-                        <button class="btn btn-secondary">View History</button>
-                    </div>
-                </div>
+                <p>This is the Cycle Tracker section. ID: cycle-tracker</p>
+                <p>Section classes: <span id="cycleTrackerClasses">cycle-tracker classes</span></p>
             </div>
         </section>
 
         <!-- Fasting Section -->
-        <section id="fasting" class="section">
+        <section id="fasting" class="section section-debug">
             <div class="container">
                 <h2 class="section-title">Fasting Tracker</h2>
-                <div class="fasting-overview">
-                    <div class="card">
-                        <h3>Current Fast</h3>
-                        <div class="fasting-timer">
-                            <div class="timer-display">16:42:15</div>
-                            <p class="timer-label">Hours:Minutes:Seconds</p>
-                        </div>
-                        <div class="fasting-controls">
-                            <button class="btn btn-success">Start Fast</button>
-                            <button class="btn btn-danger">End Fast</button>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3>Fasting Goals</h3>
-                        <p>Set and track your fasting goals to optimize your metabolic health.</p>
-                        <button class="btn btn-secondary">Set Goals</button>
-                    </div>
-                </div>
+                <p>This is the Fasting section. ID: fasting</p>
+                <p>Section classes: <span id="fastingClasses">fasting classes</span></p>
             </div>
         </section>
 
         <!-- Calories Section -->
-        <section id="calories" class="section">
+        <section id="calories" class="section section-debug">
             <div class="container">
                 <h2 class="section-title">Calorie Tracker</h2>
-                <div class="calorie-overview">
-                    <div class="card">
-                        <h3>Today's Nutrition</h3>
-                        <div class="calorie-stats">
-                            <div class="stat">
-                                <span class="stat-label">Calories:</span>
-                                <span class="stat-value">1,850 / 2,000</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Protein:</span>
-                                <span class="stat-value">85g / 100g</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Carbs:</span>
-                                <span class="stat-value">180g / 200g</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Log Food</button>
-                    </div>
-                    <div class="card">
-                        <h3>Nutrition Goals</h3>
-                        <p>Track your daily nutrition to support your cycle-aware wellness goals.</p>
-                        <button class="btn btn-secondary">Set Goals</button>
-                    </div>
-                </div>
+                <p>This is the Calories section. ID: calories</p>
+                <p>Section classes: <span id="caloriesClasses">calories classes</span></p>
             </div>
         </section>
 
         <!-- Symptoms Section -->
-        <section id="symptoms" class="section">
+        <section id="symptoms" class="section section-debug">
             <div class="container">
                 <h2 class="section-title">Symptom Tracker</h2>
-                <div class="symptom-overview">
-                    <div class="card">
-                        <h3>Today's Symptoms</h3>
-                        <div class="symptom-list">
-                            <div class="symptom-item">
-                                <span class="symptom-name">Energy Level</span>
-                                <span class="symptom-rating">High</span>
-                            </div>
-                            <div class="symptom-item">
-                                <span class="symptom-name">Mood</span>
-                                <span class="symptom-rating">Good</span>
-                            </div>
-                            <div class="symptom-item">
-                                <span class="symptom-name">Cramps</span>
-                                <span class="symptom-rating">None</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary">Log Symptoms</button>
-                    </div>
-                    <div class="card">
-                        <h3>Symptom Patterns</h3>
-                        <p>Track symptoms over time to identify patterns and optimize your wellness routine.</p>
-                        <button class="btn btn-secondary">View Patterns</button>
-                    </div>
-                </div>
+                <p>This is the Symptoms section. ID: symptoms</p>
+                <p>Section classes: <span id="symptomsClasses">symptoms classes</span></p>
             </div>
         </section>
 
         <!-- Insights Section -->
-        <section id="insights" class="section">
+        <section id="insights" class="section section-debug">
             <div class="container">
                 <h2 class="section-title">Insights & Education</h2>
-                <div class="insights-overview">
-                    <div class="card">
-                        <h3>Cycle Insights</h3>
-                        <p>Based on your data, you're currently in your ovulation phase. This is an excellent time for:</p>
-                        <ul class="insight-list">
-                            <li>High-intensity workouts</li>
-                            <li>Social activities</li>
-                            <li>Creative projects</li>
-                            <li>Goal setting and planning</li>
-                        </ul>
-                    </div>
-                    <div class="card">
-                        <h3>Educational Resources</h3>
-                        <p>Learn more about cycle-aware wellness and how to optimize your health throughout your cycle.</p>
-                        <button class="btn btn-secondary">Browse Resources</button>
-                    </div>
-                </div>
+                <p>This is the Insights section. ID: insights</p>
+                <p>Section classes: <span id="insightsClasses">insights classes</span></p>
             </div>
         </section>
     </main>
@@ -214,7 +152,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 CycleSync. Empowering cycle-aware wellness.</p>
+            <p>&copy; 2024 CycleSync. Navigation Debug.</p>
         </div>
     </footer>
 
@@ -457,6 +395,66 @@
                 }
                 return null;
             };
+        });
+    </script>
+    
+    <script>
+        // Debug functions
+        function debugNavigation() {
+            const app = window.cycleSyncApp;
+            if (!app) {
+                document.getElementById('debugInfo').innerHTML = '❌ App not initialized';
+                return;
+            }
+
+            const sections = document.querySelectorAll('.section');
+            let debugInfo = '<strong>Navigation Debug:</strong><br>';
+            debugInfo += `App initialized: ${app.isInitialized}<br>`;
+            debugInfo += `Current section: ${app.currentSection}<br>`;
+            debugInfo += `Total sections: ${sections.length}<br><br>`;
+
+            sections.forEach(section => {
+                const id = section.id;
+                const isActive = section.classList.contains('active');
+                const display = window.getComputedStyle(section).display;
+                debugInfo += `${id}: active=${isActive}, display=${display}<br>`;
+                
+                // Update class display
+                const classSpan = document.getElementById(`${id}Classes`);
+                if (classSpan) {
+                    classSpan.textContent = section.className;
+                }
+            });
+
+            document.getElementById('debugInfo').innerHTML = debugInfo;
+            document.getElementById('currentSectionDisplay').textContent = app.currentSection;
+        }
+
+        function forceShowSection(sectionId) {
+            const app = window.cycleSyncApp;
+            if (app) {
+                app.navigateToSection(sectionId);
+                setTimeout(debugNavigation, 100);
+            }
+        }
+
+        function clearConsole() {
+            console.clear();
+            document.getElementById('debugInfo').innerHTML = 'Console cleared. Ready for debugging.';
+        }
+
+        // Auto-debug on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                debugNavigation();
+            }, 1000);
+        });
+
+        // Debug on navigation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('nav-link')) {
+                setTimeout(debugNavigation, 100);
+            }
         });
     </script>
 </body>

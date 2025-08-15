@@ -170,9 +170,10 @@ a:hover {
 
 .nav-link:hover,
 .nav-link.active {
-    color: var(--primary-color);
-    background-color: var(--primary-color);
     color: var(--white);
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-toggle {
@@ -210,32 +211,44 @@ a:hover {
     color: var(--gray-800);
 }
 
-/* Dashboard Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-}
-
-/* Cards */
+/* Card Components */
 .card {
-    background-color: var(--white);
+    background: var(--white);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: var(--shadow-md);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-fast);
 }
 
 .card:hover {
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
 }
 
 .card h3 {
-    color: var(--gray-800);
-    margin-bottom: var(--spacing-lg);
-    font-size: var(--font-size-xl);
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card h3 i {
+    margin-right: var(--spacing-sm);
+    color: var(--primary-color);
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.card-subtitle {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 /* Cycle Phase Card */
@@ -273,22 +286,28 @@ a:hover {
 }
 
 /* Fasting Timer */
-.timer-display {
+.fasting-timer {
     text-align: center;
-}
-
-.timer {
-    display: block;
-    font-size: var(--font-size-3xl);
-    font-weight: 700;
-    color: var(--secondary-color);
     margin-bottom: var(--spacing-lg);
-    font-family: 'Courier New', monospace;
 }
 
-.timer-controls {
+.timer-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    margin-bottom: var(--spacing-xs);
+}
+
+.timer-label {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.fasting-controls {
     display: flex;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     justify-content: center;
 }
 
@@ -321,15 +340,15 @@ a:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-sm) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     border: none;
     border-radius: var(--radius-md);
-    font-size: var(--font-size-sm);
+    font-size: 0.9rem;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
     transition: all var(--transition-fast);
-    gap: var(--spacing-sm);
+    min-height: 40px;
 }
 
 .btn:disabled {
@@ -338,22 +357,42 @@ a:hover {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: var(--white);
 }
 
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--primary-dark);
+.btn-primary:hover {
+    background: var(--primary-dark);
     transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background-color: var(--gray-200);
+    background: var(--gray-100);
     color: var(--gray-700);
+    border: 1px solid var(--gray-300);
 }
 
-.btn-secondary:hover:not(:disabled) {
-    background-color: var(--gray-300);
+.btn-secondary:hover {
+    background: var(--gray-200);
+    border-color: var(--gray-400);
+}
+
+.btn-success {
+    background: var(--success);
+    color: var(--white);
+}
+
+.btn-success:hover {
+    background: var(--success-dark);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background: var(--danger-dark);
 }
 
 .btn-outline {
@@ -454,6 +493,116 @@ a:hover {
     color: var(--gray-100);
 }
 
+/* Stats and Data Display */
+.stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.stat:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+.stat-value {
+    color: var(--gray-900);
+    font-weight: 600;
+}
+
+/* Cycle Stats */
+.cycle-stats {
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Symptom List */
+.symptom-list {
+    margin-bottom: var(--spacing-lg);
+}
+
+.symptom-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.symptom-item:last-child {
+    border-bottom: none;
+}
+
+.symptom-name {
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.symptom-rating {
+    color: var(--success);
+    font-weight: 600;
+    background: var(--success-light);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+}
+
+/* Insight List */
+.insight-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-md) 0;
+}
+
+.insight-list li {
+    padding: var(--spacing-xs) 0;
+    color: var(--gray-700);
+    position: relative;
+    padding-left: var(--spacing-md);
+}
+
+.insight-list li::before {
+    content: "✓";
+    color: var(--success);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+/* Section Layouts */
+.cycle-overview,
+.fasting-overview,
+.calorie-overview,
+.symptom-overview,
+.insights-overview {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+    .cycle-overview,
+    .fasting-overview,
+    .calorie-overview,
+    .symptom-overview,
+    .insights-overview {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
 /* Footer */
 .footer {
     background-color: var(--gray-800);
@@ -487,6 +636,24 @@ a:hover {
     box-shadow: var(--shadow-lg);
     padding: var(--spacing-md);
     gap: var(--spacing-sm);
+    z-index: 99;
+    border-top: 1px solid var(--gray-200);
+}
+
+.nav-menu.active .nav-link {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.nav-menu.active .nav-link:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+}
+
+.nav-menu.active .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--white);
 }
 
 .nav-toggle.active .bar:nth-child(1) {
