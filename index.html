@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CycleSync - A modern web application for tracking and synchronizing menstrual cycles with cycle-aware wellness features">
+    <meta name="keywords" content="cycle tracking, menstrual health, wellness, fasting, calorie tracking, PCOS, birth control">
+    <meta name="author" content="CycleSync">
+    <title>CycleSync - Cycle-Aware Wellness App</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1 class="logo">CycleSync</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+                <li><a href="#cycle-tracker" class="nav-link">Cycle Tracker</a></li>
+                <li><a href="#fasting" class="nav-link">Fasting</a></li>
+                <li><a href="#calories" class="nav-link">Calories</a></li>
+                <li><a href="#symptoms" class="nav-link">Symptoms</a></li>
+                <li><a href="#insights" class="nav-link">Insights</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="container">
+                <h2 class="section-title">Dashboard</h2>
+                <div class="dashboard-grid">
+                    <div class="card cycle-phase-card">
+                        <h3>Current Phase</h3>
+                        <div class="phase-indicator">
+                            <span class="phase-name">Follicular Phase</span>
+                            <div class="phase-progress">
+                                <div class="progress-bar" style="width: 65%"></div>
+                            </div>
+                            <p class="phase-description">Increased energy and creativity</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card fasting-card">
+                        <h3>Fasting Timer</h3>
+                        <div class="timer-display">
+                            <span class="timer">00:00:00</span>
+                            <div class="timer-controls">
+                                <button class="btn btn-primary" id="startFast">Start Fast</button>
+                                <button class="btn btn-secondary" id="stopFast" disabled>Stop Fast</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card calorie-card">
+                        <h3>Today's Calories</h3>
+                        <div class="calorie-display">
+                            <span class="calorie-count">0</span>
+                            <span class="calorie-target">/ 1,850</span>
+                            <div class="calorie-progress">
+                                <div class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cycle Tracker Section -->
+        <section id="cycle-tracker" class="section">
+            <div class="container">
+                <h2 class="section-title">Cycle Tracker</h2>
+                <div class="cycle-controls">
+                    <button class="btn btn-primary" id="logPeriod">Log Period Start</button>
+                    <button class="btn btn-secondary" id="logSymptoms">Log Symptoms</button>
+                </div>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button class="btn btn-icon" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="currentMonth">August 2024</h3>
+                        <button class="btn btn-icon" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fasting Section -->
+        <section id="fasting" class="section">
+            <div class="container">
+                <h2 class="section-title">Fasting Tracker</h2>
+                <div class="fasting-setup">
+                    <div class="fasting-presets">
+                        <h3>Recommended Windows</h3>
+                        <div class="preset-buttons">
+                            <button class="btn btn-outline" data-window="14:10">14:10</button>
+                            <button class="btn btn-outline" data-window="16:8">16:8</button>
+                            <button class="btn btn-outline" data-window="18:6">18:6</button>
+                        </div>
+                    </div>
+                    <div class="fasting-history">
+                        <h3>Recent Fasts</h3>
+                        <div class="fast-list" id="fastList">
+                            <!-- Fasting history will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calories Section -->
+        <section id="calories" class="section">
+            <div class="container">
+                <h2 class="section-title">Calorie Tracker</h2>
+                <div class="calorie-input">
+                    <input type="number" id="calorieInput" placeholder="Enter calories" class="input">
+                    <button class="btn btn-primary" id="addCalories">Add</button>
+                </div>
+                <div class="calorie-log">
+                    <h3>Today's Log</h3>
+                    <div class="food-list" id="foodList">
+                        <!-- Food items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Symptoms Section -->
+        <section id="symptoms" class="section">
+            <div class="container">
+                <h2 class="section-title">Symptom Tracker</h3>
+                <div class="symptom-form">
+                    <div class="form-group">
+                        <label for="symptomType">Symptom Type</label>
+                        <select id="symptomType" class="select">
+                            <option value="">Select symptom...</option>
+                            <option value="mood">Mood</option>
+                            <option value="cramps">Cramps</option>
+                            <option value="energy">Energy Level</option>
+                            <option value="cravings">Cravings</option>
+                            <option value="discharge">Discharge</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="symptomIntensity">Intensity (1-10)</label>
+                        <input type="range" id="symptomIntensity" min="1" max="10" value="5" class="range">
+                        <span id="intensityValue">5</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="symptomNotes">Notes</label>
+                        <textarea id="symptomNotes" placeholder="Additional notes..." class="textarea"></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="logSymptom">Log Symptom</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Insights Section -->
+        <section id="insights" class="section">
+            <div class="container">
+                <h2 class="section-title">Insights & Education</h2>
+                <div class="insights-grid">
+                    <div class="card insight-card">
+                        <h3>Why your appetite feels high today</h3>
+                        <p>During the luteal phase, progesterone increases, which can lead to increased hunger and cravings. This is completely normal!</p>
+                    </div>
+                    <div class="card insight-card">
+                        <h3>Fasting Safety in PCOS</h3>
+                        <p>If you have PCOS, consider shorter fasting windows (12-14 hours) to maintain stable blood sugar levels.</p>
+                    </div>
+                    <div class="card insight-card">
+                        <h3>Cycle-Aware Nutrition</h3>
+                        <p>Focus on iron-rich foods during menstruation and complex carbs during the luteal phase for better energy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 CycleSync. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/app.js" type="module"></script>
+    <script src="js/cycleTracker.js" type="module"></script>
+    <script src="js/fastingTracker.js" type="module"></script>
+    <script src="js/calorieTracker.js" type="module"></script>
+    <script src="js/symptomTracker.js" type="module"></script>
+</body>
+</html>
