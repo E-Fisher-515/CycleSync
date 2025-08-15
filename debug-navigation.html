@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleSync - Navigation Debug</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-width: 350px;
+            font-size: 12px;
+        }
+        .debug-button {
+            display: block;
+            width: 100%;
+            margin: var(--spacing-sm) 0;
+            padding: var(--spacing-sm);
+            background: var(--info);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+        }
+        .debug-button:hover {
+            background: var(--primary-color);
+        }
+        .debug-info {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+            font-size: 11px;
+        }
+        .section-debug {
+            border: 2px solid var(--gray-300);
+            margin: var(--spacing-sm) 0;
+            padding: var(--spacing-sm);
+        }
+        .section-debug.active {
+            border-color: var(--success);
+            background: var(--gray-50);
+        }
+    </style>
+</head>
+<body>
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h3>🐛 Navigation Debug</h3>
+        <button class="debug-button" onclick="debugNavigation()">Debug Navigation</button>
+        <button class="debug-button" onclick="forceShowSection('dashboard')">Show Dashboard</button>
+        <button class="debug-button" onclick="forceShowSection('cycle-tracker')">Show Cycle Tracker</button>
+        <button class="debug-button" onclick="forceShowSection('fasting')">Show Fasting</button>
+        <button class="debug-button" onclick="clearConsole()">Clear Console</button>
+        <div class="debug-info" id="debugInfo">
+            Click debug button to see info...
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1 class="logo">CycleSync</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+                <li><a href="#cycle-tracker" class="nav-link">Cycle Tracker</a></li>
+                <li><a href="#fasting" class="nav-link">Fasting</a></li>
+                <li><a href="#calories" class="nav-link">Calories</a></li>
+                <li><a href="#symptoms" class="nav-link">Symptoms</a></li>
+                <li><a href="#insights" class="nav-link">Insights</a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active section-debug">
+            <div class="container">
+                <h2 class="section-title">Dashboard</h2>
+                <p>This is the Dashboard section. ID: dashboard</p>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Navigation Debug</h3>
+                        <p>Current section should be: <strong id="currentSectionDisplay">dashboard</strong></p>
+                        <p>Section classes: <span id="dashboardClasses">dashboard classes</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cycle Tracker Section -->
+        <section id="cycle-tracker" class="section section-debug">
+            <div class="container">
+                <h2 class="section-title">Cycle Tracker</h2>
+                <p>This is the Cycle Tracker section. ID: cycle-tracker</p>
+                <p>Section classes: <span id="cycleTrackerClasses">cycle-tracker classes</span></p>
+            </div>
+        </section>
+
+        <!-- Fasting Section -->
+        <section id="fasting" class="section section-debug">
+            <div class="container">
+                <h2 class="section-title">Fasting Tracker</h2>
+                <p>This is the Fasting section. ID: fasting</p>
+                <p>Section classes: <span id="fastingClasses">fasting classes</span></p>
+            </div>
+        </section>
+
+        <!-- Calories Section -->
+        <section id="calories" class="section section-debug">
+            <div class="container">
+                <h2 class="section-title">Calorie Tracker</h2>
+                <p>This is the Calories section. ID: calories</p>
+                <p>Section classes: <span id="caloriesClasses">calories classes</span></p>
+            </div>
+        </section>
+
+        <!-- Symptoms Section -->
+        <section id="symptoms" class="section section-debug">
+            <div class="container">
+                <h2 class="section-title">Symptom Tracker</h2>
+                <p>This is the Symptoms section. ID: symptoms</p>
+                <p>Section classes: <span id="symptomsClasses">symptoms classes</span></p>
+            </div>
+        </section>
+
+        <!-- Insights Section -->
+        <section id="insights" class="section section-debug">
+            <div class="container">
+                <h2 class="section-title">Insights & Education</h2>
+                <p>This is the Insights section. ID: insights</p>
+                <p>Section classes: <span id="insightsClasses">insights classes</span></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 CycleSync. Navigation Debug.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        /**
+         * CycleSync - Main Application File
+         * Handles navigation, app initialization, and core functionality
+         * FISH-10: Core Navigation and App Structure
+         */
+
+        class CycleSyncApp {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.isInitialized = false;
+                // Don't call init() here - wait for DOM to be ready
+            }
+
+            init() {
+                try {
+                    // Wait a bit to ensure DOM is fully ready
+                    setTimeout(() => {
+                        this.setupNavigation();
+                        this.setupMobileMenu();
+                        this.setupEventListeners();
+                        this.handleInitialRoute();
+                        this.showSection(this.currentSection);
+                        this.isInitialized = true;
+                        console.log('✅ CycleSync app initialized successfully');
+                        this.logNavigationStatus();
+                        
+                        // Make app globally accessible for debugging
+                        window.cycleSyncApp = this;
+                    }, 100);
+                } catch (error) {
+                    console.error('❌ Failed to initialize CycleSync app:', error);
+                }
+            }
+
+            setupNavigation() {
+                // Get all navigation links
+                this.navLinks = document.querySelectorAll('.nav-link');
+                this.sections = document.querySelectorAll('.section');
+                
+                if (this.navLinks.length === 0) {
+                    throw new Error('No navigation links found');
+                }
+                
+                if (this.sections.length === 0) {
+                    throw new Error('No sections found');
+                }
+                
+                // Add click event listeners to navigation
+                this.navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetSection = link.getAttribute('href').substring(1);
+                        this.navigateToSection(targetSection);
+                    });
+                });
+                
+                console.log(`✅ Navigation setup complete: ${this.navLinks.length} links, ${this.sections.length} sections`);
+            }
+
+            setupMobileMenu() {
+                const navToggle = document.querySelector('.nav-toggle');
+                const navMenu = document.querySelector('.nav-menu');
+                
+                if (navToggle && navMenu) {
+                    navToggle.addEventListener('click', () => {
+                        navMenu.classList.toggle('active');
+                        navToggle.classList.toggle('active');
+                        console.log('📱 Mobile menu toggled');
+                    });
+                    console.log('✅ Mobile menu setup complete');
+                } else {
+                    console.warn('⚠️ Mobile menu elements not found');
+                }
+            }
+
+            setupEventListeners() {
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    const nav = document.querySelector('.nav');
+                    const navToggle = document.querySelector('.nav-toggle');
+                    
+                    if (!nav.contains(e.target) && navToggle && navToggle.classList.contains('active')) {
+                        navToggle.classList.remove('active');
+                        document.querySelector('.nav-menu').classList.remove('active');
+                    }
+                });
+
+                // Handle window resize for mobile menu
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 768) {
+                        const navMenu = document.querySelector('.nav-menu');
+                        const navToggle = document.querySelector('.nav-toggle');
+                        if (navMenu && navToggle) {
+                            navMenu.classList.remove('active');
+                            navToggle.classList.remove('active');
+                        }
+                    }
+                });
+
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', (e) => {
+                    if (e.state && e.state.section) {
+                        this.navigateToSection(e.state.section, false);
+                    }
+                });
+
+                console.log('✅ Event listeners setup complete');
+            }
+
+            handleInitialRoute() {
+                // Check if there's a hash in the URL
+                const hash = window.location.hash.substring(1);
+                if (hash && this.isValidSection(hash)) {
+                    this.currentSection = hash;
+                    console.log(`📍 Initial route detected: ${hash}`);
+                } else {
+                    console.log(`📍 Using default route: ${this.currentSection}`);
+                }
+            }
+
+            isValidSection(sectionId) {
+                return Array.from(this.sections).some(section => section.id === sectionId);
+            }
+
+            navigateToSection(sectionId, updateHistory = true) {
+                if (!this.isValidSection(sectionId)) {
+                    console.error(`❌ Invalid section: ${sectionId}`);
+                    return;
+                }
+
+                console.log(`🔄 Navigating to section: ${sectionId}`);
+
+                // Update navigation active state
+                this.navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // Show the target section
+                this.showSection(sectionId);
+                
+                // Update current section
+                this.currentSection = sectionId;
+                
+                // Close mobile menu if open
+                const navMenu = document.querySelector('.nav-menu');
+                const navToggle = document.querySelector('.nav-toggle');
+                if (navMenu && navToggle && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                }
+
+                // Update URL hash and history
+                if (updateHistory) {
+                    history.pushState({ section: sectionId }, '', `#${sectionId}`);
+                }
+
+                console.log(`✅ Navigation complete: ${sectionId}`);
+            }
+
+            showSection(sectionId) {
+                // Hide all sections
+                this.sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    console.log(`✅ Section displayed: ${sectionId}`);
+                } else {
+                    console.error(`❌ Section not found: ${sectionId}`);
+                }
+            }
+
+            // Utility method to get current section
+            getCurrentSection() {
+                return this.currentSection;
+            }
+
+            // Method to refresh current section
+            refreshCurrentSection() {
+                this.showSection(this.currentSection);
+            }
+
+            // Method to test navigation functionality
+            testNavigation() {
+                console.log('🧪 Testing navigation functionality...');
+                
+                const testResults = {
+                    totalSections: this.sections.length,
+                    totalNavLinks: this.navLinks.length,
+                    currentSection: this.currentSection,
+                    isInitialized: this.isInitialized
+                };
+
+                // Test each section
+                this.sections.forEach(section => {
+                    const sectionId = section.id;
+                    const hasNavLink = Array.from(this.navLinks).some(link => 
+                        link.getAttribute('href') === `#${sectionId}`
+                    );
+                    testResults[sectionId] = {
+                        exists: true,
+                        hasNavLink: hasNavLink
+                    };
+                });
+
+                console.log('📊 Navigation test results:', testResults);
+                return testResults;
+            }
+
+            // Log current navigation status
+            logNavigationStatus() {
+                console.log('📋 Current Navigation Status:');
+                console.log(`   Current Section: ${this.currentSection}`);
+                console.log(`   Total Sections: ${this.sections.length}`);
+                console.log(`   Total Nav Links: ${this.navLinks.length}`);
+                console.log(`   App Initialized: ${this.isInitialized}`);
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new CycleSyncApp();
+            app.init();
+            
+            // Add global test function for debugging
+            window.testCycleSyncNavigation = () => {
+                if (window.cycleSyncApp) {
+                    return window.cycleSyncApp.testNavigation();
+                }
+                return null;
+            };
+        });
+    </script>
+    
+    <script>
+        // Debug functions
+        function debugNavigation() {
+            const app = window.cycleSyncApp;
+            if (!app) {
+                document.getElementById('debugInfo').innerHTML = '❌ App not initialized';
+                return;
+            }
+
+            const sections = document.querySelectorAll('.section');
+            let debugInfo = '<strong>Navigation Debug:</strong><br>';
+            debugInfo += `App initialized: ${app.isInitialized}<br>`;
+            debugInfo += `Current section: ${app.currentSection}<br>`;
+            debugInfo += `Total sections: ${sections.length}<br><br>`;
+
+            sections.forEach(section => {
+                const id = section.id;
+                const isActive = section.classList.contains('active');
+                const display = window.getComputedStyle(section).display;
+                debugInfo += `${id}: active=${isActive}, display=${display}<br>`;
+                
+                // Update class display
+                const classSpan = document.getElementById(`${id}Classes`);
+                if (classSpan) {
+                    classSpan.textContent = section.className;
+                }
+            });
+
+            document.getElementById('debugInfo').innerHTML = debugInfo;
+            document.getElementById('currentSectionDisplay').textContent = app.currentSection;
+        }
+
+        function forceShowSection(sectionId) {
+            const app = window.cycleSyncApp;
+            if (app) {
+                app.navigateToSection(sectionId);
+                setTimeout(debugNavigation, 100);
+            }
+        }
+
+        function clearConsole() {
+            console.clear();
+            document.getElementById('debugInfo').innerHTML = 'Console cleared. Ready for debugging.';
+        }
+
+        // Auto-debug on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                debugNavigation();
+            }, 1000);
+        });
+
+        // Debug on navigation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('nav-link')) {
+                setTimeout(debugNavigation, 100);
+            }
+        });
+    </script>
+</body>
+</html>

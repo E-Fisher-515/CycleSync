@@ -8,19 +8,25 @@ class CycleSyncApp {
     constructor() {
         this.currentSection = 'dashboard';
         this.isInitialized = false;
-        this.init();
+        // Don't call init() here - wait for DOM to be ready
     }
 
     init() {
         try {
-            this.setupNavigation();
-            this.setupMobileMenu();
-            this.setupEventListeners();
-            this.handleInitialRoute();
-            this.showSection(this.currentSection);
-            this.isInitialized = true;
-            console.log('✅ CycleSync app initialized successfully');
-            this.logNavigationStatus();
+            // Wait a bit to ensure DOM is fully ready
+            setTimeout(() => {
+                this.setupNavigation();
+                this.setupMobileMenu();
+                this.setupEventListeners();
+                this.handleInitialRoute();
+                this.showSection(this.currentSection);
+                this.isInitialized = true;
+                console.log('✅ CycleSync app initialized successfully');
+                this.logNavigationStatus();
+                
+                // Make app globally accessible for debugging
+                window.cycleSyncApp = this;
+            }, 100);
         } catch (error) {
             console.error('❌ Failed to initialize CycleSync app:', error);
         }
@@ -219,7 +225,8 @@ class CycleSyncApp {
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.cycleSyncApp = new CycleSyncApp();
+    const app = new CycleSyncApp();
+    app.init();
     
     // Add global test function for debugging
     window.testCycleSyncNavigation = () => {
