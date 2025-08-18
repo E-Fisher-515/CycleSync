@@ -33,6 +33,8 @@ class CycleTracker {
     }
 
     setupEventListeners() {
+        console.log('🔄 Setting up cycle tracker event listeners...');
+        
         // Period logging
         const logPeriodBtn = document.getElementById('logPeriodBtn');
         const closePeriodModal = document.getElementById('closePeriodModal');
@@ -40,27 +42,41 @@ class CycleTracker {
         const savePeriod = document.getElementById('savePeriod');
         const periodModal = document.getElementById('periodModal');
 
+        console.log('🔍 Found elements:', {
+            logPeriodBtn: !!logPeriodBtn,
+            closePeriodModal: !!closePeriodModal,
+            cancelPeriod: !!cancelPeriod,
+            savePeriod: !!savePeriod,
+            periodModal: !!periodModal
+        });
+
         if (logPeriodBtn && !logPeriodBtn.hasAttribute('data-listener-attached')) {
-            logPeriodBtn.addEventListener('click', () => this.openPeriodModal());
+            logPeriodBtn.addEventListener('click', () => {
+                console.log('🔄 Log period button clicked!');
+                this.openPeriodModal();
+            });
             logPeriodBtn.setAttribute('data-listener-attached', 'true');
             console.log('✅ Log period button event listener attached');
         } else if (logPeriodBtn) {
             console.log('⚠️ Log period button already has listener');
         } else {
-            console.warn('⚠️ Log period button not found');
+            console.warn('❌ Log period button not found - this will break functionality!');
         }
         
         if (closePeriodModal && !closePeriodModal.hasAttribute('data-listener-attached')) {
             closePeriodModal.addEventListener('click', () => this.closePeriodModal());
             closePeriodModal.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Close modal button event listener attached');
         }
         if (cancelPeriod && !cancelPeriod.hasAttribute('data-listener-attached')) {
             cancelPeriod.addEventListener('click', () => this.closePeriodModal());
             cancelPeriod.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Cancel button event listener attached');
         }
         if (savePeriod && !savePeriod.hasAttribute('data-listener-attached')) {
             savePeriod.addEventListener('click', () => this.savePeriod());
             savePeriod.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Save period button event listener attached');
         }
 
         // Calendar navigation
@@ -70,10 +86,12 @@ class CycleTracker {
         if (prevMonth && !prevMonth.hasAttribute('data-listener-attached')) {
             prevMonth.addEventListener('click', () => this.previousMonth());
             prevMonth.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Previous month button event listener attached');
         }
         if (nextMonth && !nextMonth.hasAttribute('data-listener-attached')) {
             nextMonth.addEventListener('click', () => this.nextMonth());
             nextMonth.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Next month button event listener attached');
         }
 
         // Close modal when clicking outside
@@ -84,6 +102,7 @@ class CycleTracker {
                 }
             });
             periodModal.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Modal outside click event listener attached');
         }
 
         // Set default date to today
@@ -91,6 +110,9 @@ class CycleTracker {
         if (periodDateInput) {
             const today = new Date().toISOString().split('T')[0];
             periodDateInput.value = today;
+            console.log('✅ Set default date to today:', today);
+        } else {
+            console.warn('❌ Period date input not found');
         }
 
         // Add view history functionality
@@ -102,7 +124,7 @@ class CycleTracker {
         } else if (viewHistoryBtn) {
             console.log('⚠️ View history button already has listener');
         } else {
-            console.warn('⚠️ View history button not found');
+            console.warn('❌ View history button not found');
         }
 
         // Add clear data functionality
@@ -111,6 +133,8 @@ class CycleTracker {
             clearDataBtn.addEventListener('click', () => this.clearData());
             clearDataBtn.setAttribute('data-listener-attached', 'true');
             console.log('✅ Clear data button event listener attached');
+        } else {
+            console.warn('❌ Clear data button not found');
         }
 
         // Add manage data functionality
@@ -119,6 +143,8 @@ class CycleTracker {
             manageDataBtn.addEventListener('click', () => this.showDataManagement());
             manageDataBtn.setAttribute('data-listener-attached', 'true');
             console.log('✅ Manage data button event listener attached');
+        } else {
+            console.warn('❌ Manage data button not found');
         }
 
         // Add export data functionality
@@ -127,6 +153,8 @@ class CycleTracker {
             exportDataBtn.addEventListener('click', () => this.exportData());
             exportDataBtn.setAttribute('data-listener-attached', 'true');
             console.log('✅ Export data button event listener attached');
+        } else {
+            console.warn('❌ Export data button not found');
         }
 
         // Add debug data functionality
@@ -135,6 +163,8 @@ class CycleTracker {
             debugDataBtn.addEventListener('click', () => this.debugData());
             debugDataBtn.setAttribute('data-listener-attached', 'true');
             console.log('✅ Debug data button event listener attached');
+        } else {
+            console.warn('❌ Debug data button not found');
         }
 
         // Data management modal events
@@ -161,7 +191,7 @@ class CycleTracker {
             dataManagementModal.setAttribute('data-listener-attached', 'true');
         }
 
-        console.log('✅ Event listeners setup complete');
+        console.log('✅ Cycle tracker event listeners setup complete');
     }
 
     // Data Management
@@ -502,7 +532,7 @@ class CycleTracker {
         this.cycles.forEach((cycle, index) => {
             const date = new Date(cycle.startDate).toLocaleDateString();
             const flow = cycle.flow.charAt(0).toUpperCase() + cycle.flow.slice(1);
-            const notes = cycle.notes ? ` - ${cycle.notes}` : '' : '';
+            const notes = cycle.notes ? ` - ${cycle.notes}` : '';
             historyText += `${index + 1}. ${date} (${flow} flow)${notes}\n`;
         });
 
