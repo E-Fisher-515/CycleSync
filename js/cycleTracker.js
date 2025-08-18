@@ -1,19 +1,693 @@
 /**
- * CycleSync - Cycle Tracker Module
- * This module will be implemented in Phase 2
+ * CycleSync - Cycle Tracking Core Engine
+ * FISH-11: Cycle Tracking Core Engine
  * 
- * Planned functionality:
+ * Handles:
  * - Cycle data model and storage
- * - Period logging
- * - Phase calculations
+ * - Period logging functionality
+ * - Cycle phase calculations
  * - Calendar visualization
- * - Predictions
+ * - Cycle length predictions
  */
+
+console.log('🔄 CycleTracker script loading...');
 
 class CycleTracker {
     constructor() {
-        console.log('Cycle Tracker module loaded - will be implemented in Phase 2');
+        console.log('🔄 CycleTracker constructor called');
+        this.cycles = [];
+        this.currentDate = new Date();
+        this.displayDate = new Date();
+        this.averageCycleLength = 28; // Default, will be calculated from data
+        
+        this.init();
+    }
+
+    init() {
+        console.log('🔄 CycleTracker init() called');
+        this.loadData();
+        this.setupEventListeners();
+        this.updateDisplay();
+        this.renderCalendar();
+        console.log('✅ CycleTracker initialized successfully');
+    }
+
+    setupEventListeners() {
+        // Period logging
+        const logPeriodBtn = document.getElementById('logPeriodBtn');
+        const closePeriodModal = document.getElementById('closePeriodModal');
+        const cancelPeriod = document.getElementById('cancelPeriod');
+        const savePeriod = document.getElementById('savePeriod');
+        const periodModal = document.getElementById('periodModal');
+
+        if (logPeriodBtn && !logPeriodBtn.hasAttribute('data-listener-attached')) {
+            logPeriodBtn.addEventListener('click', () => this.openPeriodModal());
+            logPeriodBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Log period button event listener attached');
+        } else if (logPeriodBtn) {
+            console.log('⚠️ Log period button already has listener');
+        } else {
+            console.warn('⚠️ Log period button not found');
+        }
+        
+        if (closePeriodModal && !closePeriodModal.hasAttribute('data-listener-attached')) {
+            closePeriodModal.addEventListener('click', () => this.closePeriodModal());
+            closePeriodModal.setAttribute('data-listener-attached', 'true');
+        }
+        if (cancelPeriod && !cancelPeriod.hasAttribute('data-listener-attached')) {
+            cancelPeriod.addEventListener('click', () => this.closePeriodModal());
+            cancelPeriod.setAttribute('data-listener-attached', 'true');
+        }
+        if (savePeriod && !savePeriod.hasAttribute('data-listener-attached')) {
+            savePeriod.addEventListener('click', () => this.savePeriod());
+            savePeriod.setAttribute('data-listener-attached', 'true');
+        }
+
+        // Calendar navigation
+        const prevMonth = document.getElementById('prevMonth');
+        const nextMonth = document.getElementById('nextMonth');
+
+        if (prevMonth && !prevMonth.hasAttribute('data-listener-attached')) {
+            prevMonth.addEventListener('click', () => this.previousMonth());
+            prevMonth.setAttribute('data-listener-attached', 'true');
+        }
+        if (nextMonth && !nextMonth.hasAttribute('data-listener-attached')) {
+            nextMonth.addEventListener('click', () => this.nextMonth());
+            nextMonth.setAttribute('data-listener-attached', 'true');
+        }
+
+        // Close modal when clicking outside
+        if (periodModal && !periodModal.hasAttribute('data-listener-attached')) {
+            periodModal.addEventListener('click', (e) => {
+                if (e.target === periodModal) {
+                    this.closePeriodModal();
+                }
+            });
+            periodModal.setAttribute('data-listener-attached', 'true');
+        }
+
+        // Set default date to today
+        const periodDateInput = document.getElementById('periodDate');
+        if (periodDateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            periodDateInput.value = today;
+        }
+
+        // Add view history functionality
+        const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+        if (viewHistoryBtn && !viewHistoryBtn.hasAttribute('data-listener-attached')) {
+            viewHistoryBtn.addEventListener('click', () => this.showHistory());
+            viewHistoryBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ View history button event listener attached');
+        } else if (viewHistoryBtn) {
+            console.log('⚠️ View history button already has listener');
+        } else {
+            console.warn('⚠️ View history button not found');
+        }
+
+        // Add clear data functionality
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        if (clearDataBtn && !clearDataBtn.hasAttribute('data-listener-attached')) {
+            clearDataBtn.addEventListener('click', () => this.clearData());
+            clearDataBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Clear data button event listener attached');
+        }
+
+        // Add manage data functionality
+        const manageDataBtn = document.getElementById('manageDataBtn');
+        if (manageDataBtn && !manageDataBtn.hasAttribute('data-listener-attached')) {
+            manageDataBtn.addEventListener('click', () => this.showDataManagement());
+            manageDataBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Manage data button event listener attached');
+        }
+
+        // Add export data functionality
+        const exportDataBtn = document.getElementById('exportDataBtn');
+        if (exportDataBtn && !exportDataBtn.hasAttribute('data-listener-attached')) {
+            exportDataBtn.addEventListener('click', () => this.exportData());
+            exportDataBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Export data button event listener attached');
+        }
+
+        // Add debug data functionality
+        const debugDataBtn = document.getElementById('debugDataBtn');
+        if (debugDataBtn && !debugDataBtn.hasAttribute('data-listener-attached')) {
+            debugDataBtn.addEventListener('click', () => this.debugData());
+            debugDataBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Debug data button event listener attached');
+        }
+
+        // Data management modal events
+        const closeDataModal = document.getElementById('closeDataModal');
+        const closeDataManagement = document.getElementById('closeDataManagement');
+        const dataManagementModal = document.getElementById('dataManagementModal');
+
+        if (closeDataModal && !closeDataModal.hasAttribute('data-listener-attached')) {
+            closeDataModal.addEventListener('click', () => this.closeDataManagement());
+            closeDataModal.setAttribute('data-listener-attached', 'true');
+        }
+
+        if (closeDataManagement && !closeDataManagement.hasAttribute('data-listener-attached')) {
+            closeDataManagement.addEventListener('click', () => this.closeDataManagement());
+            closeDataManagement.setAttribute('data-listener-attached', 'true');
+        }
+
+        if (dataManagementModal && !dataManagementModal.hasAttribute('data-listener-attached')) {
+            dataManagementModal.addEventListener('click', (e) => {
+                if (e.target === dataManagementModal) {
+                    this.closeDataManagement();
+                }
+            });
+            dataManagementModal.setAttribute('data-listener-attached', 'true');
+        }
+
+        console.log('✅ Event listeners setup complete');
+    }
+
+    // Data Management
+    loadData() {
+        const savedCycles = localStorage.getItem('cyclesync_cycles');
+        if (savedCycles) {
+            this.cycles = JSON.parse(savedCycles);
+            this.calculateAverageCycleLength();
+        }
+    }
+
+    saveData() {
+        localStorage.setItem('cyclesync_cycles', JSON.stringify(this.cycles));
+        this.calculateAverageCycleLength();
+    }
+
+    // Period Logging
+    openPeriodModal() {
+        const modal = document.getElementById('periodModal');
+        if (modal) {
+            modal.classList.add('active');
+        }
+    }
+
+    closePeriodModal() {
+        const modal = document.getElementById('periodModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    savePeriod() {
+        const dateInput = document.getElementById('periodDate');
+        const flowSelect = document.getElementById('periodFlow');
+        const notesTextarea = document.getElementById('periodNotes');
+
+        if (!dateInput || !flowSelect) return;
+
+        // Fix timezone issue by creating date in local timezone
+        const inputDate = dateInput.value; // Format: YYYY-MM-DD
+        const [year, month, day] = inputDate.split('-').map(Number);
+        const periodDate = new Date(year, month - 1, day); // month is 0-indexed
+        
+        const flow = flowSelect.value;
+        const notes = notesTextarea ? notesTextarea.value : '';
+
+        console.log(`📅 Logging period for: ${periodDate.toDateString()}`);
+
+        // Add new period
+        this.cycles.push({
+            startDate: periodDate.toISOString(),
+            flow: flow,
+            notes: notes,
+            timestamp: new Date().toISOString()
+        });
+
+        // Sort cycles by date
+        this.cycles.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+        this.saveData();
+        this.updateDisplay();
+        this.renderCalendar();
+        this.closePeriodModal();
+
+        // Clear form
+        if (notesTextarea) notesTextarea.value = '';
+        if (flowSelect) flowSelect.selectedIndex = 1; // Reset to medium
+
+        console.log('✅ Period logged successfully');
+    }
+
+    // Cycle Calculations
+    calculateAverageCycleLength() {
+        if (this.cycles.length < 2) {
+            this.averageCycleLength = 28;
+            return;
+        }
+
+        let totalDays = 0;
+        let cycleCount = 0;
+
+        for (let i = 1; i < this.cycles.length; i++) {
+            const currentDate = new Date(this.cycles[i].startDate);
+            const previousDate = new Date(this.cycles[i - 1].startDate);
+            const daysDiff = Math.round((currentDate - previousDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff >= 20 && daysDiff <= 45) { // Reasonable cycle range
+                totalDays += daysDiff;
+                cycleCount++;
+            }
+        }
+
+        if (cycleCount > 0) {
+            this.averageCycleLength = Math.round(totalDays / cycleCount);
+        }
+    }
+
+    getCurrentCycleInfo() {
+        if (this.cycles.length === 0) {
+            return {
+                cycleDay: '--',
+                phase: '--',
+                nextPeriod: '--',
+                phaseProgress: 0
+            };
+        }
+
+        const lastPeriod = new Date(this.cycles[this.cycles.length - 1].startDate);
+        const today = new Date();
+        const daysSinceLastPeriod = Math.round((today - lastPeriod) / (1000 * 60 * 60 * 24));
+        
+        let cycleDay = daysSinceLastPeriod + 1;
+        let phase = 'Unknown';
+        let phaseProgress = 0;
+
+        // Determine cycle phase
+        if (cycleDay <= 7) {
+            phase = 'Menstrual';
+            phaseProgress = (cycleDay / 7) * 25;
+        } else if (cycleDay <= 14) {
+            phase = 'Follicular';
+            phaseProgress = 25 + ((cycleDay - 7) / 7) * 25;
+        } else if (cycleDay <= 16) {
+            phase = 'Ovulation';
+            phaseProgress = 50 + ((cycleDay - 14) / 2) * 25;
+        } else if (cycleDay <= this.averageCycleLength) {
+            phase = 'Luteal';
+            phaseProgress = 75 + ((cycleDay - 16) / (this.averageCycleLength - 16)) * 25;
+        } else {
+            cycleDay = '--';
+            phase = 'Overdue';
+            phaseProgress = 100;
+        }
+
+        // Calculate next period
+        const nextPeriodDate = new Date(lastPeriod);
+        nextPeriodDate.setDate(lastPeriod.getDate() + this.averageCycleLength);
+        const daysUntilNextPeriod = Math.round((nextPeriodDate - today) / (1000 * 60 * 60 * 24));
+        
+        let nextPeriod = '--';
+        if (daysUntilNextPeriod > 0) {
+            nextPeriod = `${daysUntilNextPeriod} days`;
+        } else if (daysUntilNextPeriod === 0) {
+            nextPeriod = 'Today';
+        } else {
+            nextPeriod = 'Overdue';
+        }
+
+        return {
+            cycleDay: cycleDay === '--' ? '--' : cycleDay,
+            phase: phase,
+            nextPeriod: nextPeriod,
+            phaseProgress: Math.min(100, Math.max(0, phaseProgress))
+        };
+    }
+
+    // Calendar Rendering
+    renderCalendar() {
+        const calendarGrid = document.getElementById('calendarGrid');
+        if (!calendarGrid) {
+            console.warn('⚠️ Calendar grid not found');
+            return;
+        }
+
+        console.log('🔄 Rendering calendar...');
+        
+        const currentMonth = this.displayDate.getMonth();
+        const currentYear = this.displayDate.getFullYear();
+        
+        // Clear existing calendar
+        calendarGrid.innerHTML = '';
+
+        // Add day headers
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        dayNames.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'calendar-day calendar-day-header';
+            dayHeader.textContent = day;
+            calendarGrid.appendChild(dayHeader);
+        });
+
+        // Get first day of month and number of days
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+        // Generate calendar days
+        for (let i = 0; i < 42; i++) { // 6 weeks * 7 days
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            dayElement.textContent = currentDate.getDate();
+
+            // Check if it's today
+            const today = new Date();
+            if (currentDate.toDateString() === today.toDateString()) {
+                dayElement.classList.add('today');
+            }
+
+            // Check if it's in current month
+            if (currentDate.getMonth() !== currentMonth) {
+                dayElement.classList.add('other-month');
+            }
+
+            // Check if it's a period day
+            if (this.isPeriodDay(currentDate)) {
+                dayElement.classList.add('period');
+                console.log(`🔴 Period day: ${currentDate.toDateString()}`);
+            } else {
+                // Add phase colors
+                const phase = this.getPhaseForDate(currentDate);
+                if (phase) {
+                    dayElement.classList.add(phase.toLowerCase());
+                    console.log(`🎨 Phase ${phase} for: ${currentDate.toDateString()} -> class: ${phase.toLowerCase()}`);
+                } else {
+                    console.log(`⚪ No phase for: ${currentDate.toDateString()}`);
+                }
+            }
+
+            // Add click event for period logging
+            dayElement.addEventListener('click', () => {
+                this.selectDateForPeriod(currentDate);
+            });
+
+            calendarGrid.appendChild(dayElement);
+        }
+
+        // Update month display
+        const monthDisplay = document.getElementById('currentMonth');
+        if (monthDisplay) {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            monthDisplay.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        }
+
+        console.log('✅ Calendar rendered successfully');
+    }
+
+    isPeriodDay(date) {
+        return this.cycles.some(cycle => {
+            const cycleDate = new Date(cycle.startDate);
+            return cycleDate.toDateString() === date.toDateString();
+        });
+    }
+
+    getPhaseForDate(date) {
+        if (this.cycles.length === 0) return null;
+
+        const lastPeriod = new Date(this.cycles[this.cycles.length - 1].startDate);
+        const daysSinceLastPeriod = Math.round((date - lastPeriod) / (1000 * 60 * 60 * 24));
+        
+        console.log(`🔍 Phase calculation for ${date.toDateString()}: ${daysSinceLastPeriod} days since last period`);
+        
+        if (daysSinceLastPeriod < 0) return null;
+        
+        let phase = null;
+        if (daysSinceLastPeriod <= 7) {
+            phase = 'menstrual';
+        } else if (daysSinceLastPeriod <= 14) {
+            phase = 'ovulation';
+        } else if (daysSinceLastPeriod <= 16) {
+            phase = 'ovulation';
+        } else if (daysSinceLastPeriod <= this.averageCycleLength) {
+            phase = 'luteal';
+        }
+        
+        if (phase) {
+            console.log(`🎨 Phase ${phase} for ${date.toDateString()}`);
+        }
+        
+        return phase;
+    }
+
+    selectDateForPeriod(date) {
+        const dateInput = document.getElementById('periodDate');
+        if (dateInput) {
+            // Format date as YYYY-MM-DD for the input field
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // month is 0-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            dateInput.value = formattedDate;
+            console.log(`📅 Selected date for period: ${date.toDateString()} -> ${formattedDate}`);
+            this.openPeriodModal();
+        }
+    }
+
+    previousMonth() {
+        this.displayDate.setMonth(this.displayDate.getMonth() - 1);
+        this.renderCalendar();
+    }
+
+    nextMonth() {
+        this.displayDate.setMonth(this.displayDate.getMonth() + 1);
+        this.renderCalendar();
+    }
+
+    // Display Updates
+    updateDisplay() {
+        const cycleInfo = this.getCurrentCycleInfo();
+        
+        // Update cycle stats
+        const currentCycleDay = document.getElementById('currentCycleDay');
+        const currentPhase = document.getElementById('currentPhase');
+        const nextPeriod = document.getElementById('nextPeriod');
+        const avgCycleLength = document.getElementById('avgCycleLength');
+        const phaseProgress = document.getElementById('phaseProgress');
+        const phaseDescription = document.getElementById('phaseDescription');
+
+        if (currentCycleDay) currentCycleDay.textContent = cycleInfo.cycleDay;
+        if (currentPhase) currentPhase.textContent = cycleInfo.phase;
+        if (nextPeriod) nextPeriod.textContent = cycleInfo.nextPeriod;
+        if (avgCycleLength) avgCycleLength.textContent = `${this.averageCycleLength} days`;
+        if (phaseProgress) phaseProgress.style.width = `${cycleInfo.phaseProgress}%`;
+        if (phaseDescription) {
+            phaseDescription.textContent = this.getPhaseDescription(cycleInfo.phase);
+        }
+
+        // Update total periods count
+        this.updateTotalPeriods();
+    }
+
+    // History Display
+    showHistory() {
+        // Force refresh data from localStorage to ensure we have the latest
+        this.loadData();
+        
+        if (this.cycles.length === 0) {
+            alert('No cycle history yet. Log your first period to get started!');
+            return;
+        }
+
+        let historyText = 'Cycle History:\n\n';
+        this.cycles.forEach((cycle, index) => {
+            const date = new Date(cycle.startDate).toLocaleDateString();
+            const flow = cycle.flow.charAt(0).toUpperCase() + cycle.flow.slice(1);
+            const notes = cycle.notes ? ` - ${cycle.notes}` : '' : '';
+            historyText += `${index + 1}. ${date} (${flow} flow)${notes}\n`;
+        });
+
+        historyText += `\nAverage Cycle Length: ${this.averageCycleLength} days`;
+        historyText += `\nTotal Periods: ${this.cycles.length}`;
+        alert(historyText);
+        console.log('📊 History displayed:', this.cycles);
+    }
+
+    // Debug method to help troubleshoot data issues
+    debugData() {
+        console.log('🔍 === DEBUG DATA ===');
+        console.log('Memory cycles:', this.cycles);
+        console.log('localStorage cycles:', localStorage.getItem('cyclesync_cycles'));
+        console.log('Average cycle length:', this.averageCycleLength);
+        console.log('Total periods:', this.cycles.length);
+        
+        if (this.cycles.length > 0) {
+            console.log('First period:', this.cycles[0]);
+            console.log('Last period:', this.cycles[this.cycles.length - 1]);
+        }
+        console.log('===================');
+    }
+
+    getPhaseDescription(phase) {
+        const descriptions = {
+            'Menstrual': 'Focus on rest and gentle movement. Iron-rich foods recommended.',
+            'Follicular': 'Energy building phase. Great time for new projects and workouts.',
+            'Ovulation': 'Peak performance time. High-intensity activities and social events.',
+            'Luteal': 'Maintenance phase. Focus on consistency and self-care.',
+            'Unknown': 'Track your cycle to see phase-specific insights.',
+            'Overdue': 'Consider logging your period or consulting healthcare provider.'
+        };
+        return descriptions[phase] || descriptions['Unknown'];
+    }
+
+    // Utility Methods
+    getCycles() {
+        return this.cycles;
+    }
+
+    getCycleCount() {
+        return this.cycles.length;
+    }
+
+    clearData() {
+        if (confirm('⚠️ Are you sure you want to clear ALL cycle data? This cannot be undone.')) {
+            // Clear from memory
+            this.cycles = [];
+            // Clear from localStorage
+            localStorage.removeItem('cyclesync_cycles');
+            // Reset average cycle length
+            this.averageCycleLength = 28;
+            // Update all displays
+            this.updateDisplay();
+            this.renderCalendar();
+            this.updateTotalPeriods();
+            // Close any open modals
+            this.closePeriodModal();
+            this.closeDataManagement();
+            alert('✅ All cycle data has been cleared.');
+            console.log('🗑️ All cycle data cleared from memory and localStorage');
+        }
+    }
+
+    showDataManagement() {
+        const modal = document.getElementById('dataManagementModal');
+        if (modal) {
+            this.populatePeriodList();
+            modal.classList.add('active');
+        }
+    }
+
+    closeDataManagement() {
+        const modal = document.getElementById('dataManagementModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    populatePeriodList() {
+        const periodList = document.getElementById('periodList');
+        if (!periodList) return;
+
+        if (this.cycles.length === 0) {
+            periodList.innerHTML = '<p style="text-align: center; color: var(--gray-500);">No period data to manage.</p>';
+            return;
+        }
+
+        let html = '';
+        this.cycles.forEach((cycle, index) => {
+            const date = new Date(cycle.startDate).toLocaleDateString();
+            const flow = cycle.flow.charAt(0).toUpperCase() + cycle.flow.slice(1);
+            const notes = cycle.notes ? ` - ${cycle.notes}` : '';
+            
+            html += `
+                <div class="period-entry">
+                    <div class="period-info">
+                        <div class="period-date">${date}</div>
+                        <div class="period-details">${flow} flow${notes}</div>
+                    </div>
+                    <div class="period-actions">
+                        <button class="btn-remove" onclick="window.cycleTracker.removePeriod(${index})">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        periodList.innerHTML = html;
+    }
+
+    removePeriod(index) {
+        if (confirm(`⚠️ Remove period from ${new Date(this.cycles[index].startDate).toLocaleDateString()}?`)) {
+            this.cycles.splice(index, 1);
+            this.saveData();
+            this.updateDisplay();
+            this.renderCalendar();
+            this.updateTotalPeriods();
+            this.populatePeriodList(); // Refresh the list
+            console.log(`🗑️ Period removed at index ${index}`);
+        }
+    }
+
+    exportData() {
+        if (this.cycles.length === 0) {
+            alert('No data to export.');
+            return;
+        }
+
+        const exportData = {
+            exportDate: new Date().toISOString(),
+            totalPeriods: this.cycles.length,
+            averageCycleLength: this.averageCycleLength,
+            periods: this.cycles
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cyclesync-data-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        console.log('📤 Data exported successfully');
+    }
+
+    updateTotalPeriods() {
+        const totalPeriodsElement = document.getElementById('totalPeriods');
+        if (totalPeriodsElement) {
+            totalPeriodsElement.textContent = this.cycles.length;
+        }
     }
 }
 
-export default CycleTracker;
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit to ensure all elements are ready
+    setTimeout(() => {
+        try {
+            window.cycleTracker = new CycleTracker();
+            console.log('✅ CycleTracker initialized and ready');
+        } catch (error) {
+            console.error('❌ Failed to initialize CycleTracker:', error);
+        }
+    }, 500); // Wait 500ms for all elements to be ready
+});
+
+// Also try to initialize on window load as backup
+window.addEventListener('load', () => {
+    if (!window.cycleTracker) {
+        setTimeout(() => {
+            try {
+                window.cycleTracker = new CycleTracker();
+                console.log('✅ CycleTracker initialized on window load');
+            } catch (error) {
+                console.error('❌ Failed to initialize CycleTracker on window load:', error);
+            }
+        }, 1000);
+    }
+});
+
+// Make CycleTracker available globally
+window.CycleTracker = CycleTracker;
