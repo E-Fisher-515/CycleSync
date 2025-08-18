@@ -4,60 +4,67 @@
  * FISH-10: Core Navigation and App Structure
  */
 
+console.log('🔄 App.js loading...');
+
 class CycleSyncApp {
     constructor() {
+        console.log('🔄 CycleSyncApp constructor called');
         this.currentSection = 'dashboard';
         this.isInitialized = false;
-        // Don't call init() here - wait for DOM to be ready
     }
 
     init() {
+        console.log('🔄 App init() called');
         try {
-            // Wait a bit to ensure DOM is fully ready
-            setTimeout(() => {
-                this.setupNavigation();
-                this.setupMobileMenu();
-                this.setupEventListeners();
-                this.handleInitialRoute();
-                this.showSection(this.currentSection);
-                this.isInitialized = true;
-                console.log('✅ CycleSync app initialized successfully');
-                this.logNavigationStatus();
-                
-                // Make app globally accessible for debugging
-                window.cycleSyncApp = this;
-            }, 100);
+            this.setupNavigation();
+            this.setupMobileMenu();
+            this.setupEventListeners();
+            this.showSection(this.currentSection);
+            this.isInitialized = true;
+            console.log('✅ CycleSync app initialized successfully');
+            
+            // Make app globally accessible for debugging
+            window.cycleSyncApp = this;
         } catch (error) {
             console.error('❌ Failed to initialize CycleSync app:', error);
         }
     }
 
     setupNavigation() {
+        console.log('🔄 Setting up navigation...');
+        
         // Get all navigation links
         this.navLinks = document.querySelectorAll('.nav-link');
         this.sections = document.querySelectorAll('.section');
         
+        console.log(`Found ${this.navLinks.length} nav links and ${this.sections.length} sections`);
+        
         if (this.navLinks.length === 0) {
-            throw new Error('No navigation links found');
+            console.error('❌ No navigation links found');
+            return;
         }
         
         if (this.sections.length === 0) {
-            throw new Error('No sections found');
+            console.error('❌ No sections found');
+            return;
         }
         
         // Add click event listeners to navigation
-        this.navLinks.forEach(link => {
+        this.navLinks.forEach((link, index) => {
+            console.log(`Setting up nav link ${index}: ${link.getAttribute('href')}`);
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetSection = link.getAttribute('href').substring(1);
+                console.log(`🔄 Navigating to: ${targetSection}`);
                 this.navigateToSection(targetSection);
             });
         });
         
-        console.log(`✅ Navigation setup complete: ${this.navLinks.length} links, ${this.sections.length} sections`);
+        console.log('✅ Navigation setup complete');
     }
 
     setupMobileMenu() {
+        console.log('🔄 Setting up mobile menu...');
         const navToggle = document.querySelector('.nav-toggle');
         const navMenu = document.querySelector('.nav-menu');
         
@@ -74,6 +81,8 @@ class CycleSyncApp {
     }
 
     setupEventListeners() {
+        console.log('🔄 Setting up event listeners...');
+        
         // Close mobile menu when clicking outside
         document.addEventListener('click', (e) => {
             const nav = document.querySelector('.nav');
@@ -85,50 +94,16 @@ class CycleSyncApp {
             }
         });
 
-        // Handle window resize for mobile menu
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                const navMenu = document.querySelector('.nav-menu');
-                const navToggle = document.querySelector('.nav-toggle');
-                if (navMenu && navToggle) {
-                    navMenu.classList.remove('active');
-                    navToggle.classList.remove('active');
-                }
-            }
-        });
-
-        // Handle browser back/forward buttons
-        window.addEventListener('popstate', (e) => {
-            if (e.state && e.state.section) {
-                this.navigateToSection(e.state.section, false);
-            }
-        });
-
         console.log('✅ Event listeners setup complete');
     }
 
-    handleInitialRoute() {
-        // Check if there's a hash in the URL
-        const hash = window.location.hash.substring(1);
-        if (hash && this.isValidSection(hash)) {
-            this.currentSection = hash;
-            console.log(`📍 Initial route detected: ${hash}`);
-        } else {
-            console.log(`📍 Using default route: ${this.currentSection}`);
-        }
-    }
-
-    isValidSection(sectionId) {
-        return Array.from(this.sections).some(section => section.id === sectionId);
-    }
-
-    navigateToSection(sectionId, updateHistory = true) {
+    navigateToSection(sectionId) {
+        console.log(`🔄 Navigating to section: ${sectionId}`);
+        
         if (!this.isValidSection(sectionId)) {
             console.error(`❌ Invalid section: ${sectionId}`);
             return;
         }
-
-        console.log(`🔄 Navigating to section: ${sectionId}`);
 
         // Update navigation active state
         this.navLinks.forEach(link => {
@@ -152,15 +127,16 @@ class CycleSyncApp {
             navToggle.classList.remove('active');
         }
 
-        // Update URL hash and history
-        if (updateHistory) {
-            history.pushState({ section: sectionId }, '', `#${sectionId}`);
-        }
-
         console.log(`✅ Navigation complete: ${sectionId}`);
     }
 
+    isValidSection(sectionId) {
+        return Array.from(this.sections).some(section => section.id === sectionId);
+    }
+
     showSection(sectionId) {
+        console.log(`🔄 Showing section: ${sectionId}`);
+        
         // Hide all sections
         this.sections.forEach(section => {
             section.classList.remove('active');
@@ -176,16 +152,6 @@ class CycleSyncApp {
         }
     }
 
-    // Utility method to get current section
-    getCurrentSection() {
-        return this.currentSection;
-    }
-
-    // Method to refresh current section
-    refreshCurrentSection() {
-        this.showSection(this.currentSection);
-    }
-
     // Method to test navigation functionality
     testNavigation() {
         console.log('🧪 Testing navigation functionality...');
@@ -197,45 +163,25 @@ class CycleSyncApp {
             isInitialized: this.isInitialized
         };
 
-        // Test each section
-        this.sections.forEach(section => {
-            const sectionId = section.id;
-            const hasNavLink = Array.from(this.navLinks).some(link => 
-                link.getAttribute('href') === `#${sectionId}`
-            );
-            testResults[sectionId] = {
-                exists: true,
-                hasNavLink: hasNavLink
-            };
-        });
-
         console.log('📊 Navigation test results:', testResults);
         return testResults;
-    }
-
-    // Log current navigation status
-    logNavigationStatus() {
-        console.log('📋 Current Navigation Status:');
-        console.log(`   Current Section: ${this.currentSection}`);
-        console.log(`   Total Sections: ${this.sections.length}`);
-        console.log(`   Total Nav Links: ${this.navLinks.length}`);
-        console.log(`   App Initialized: ${this.isInitialized}`);
     }
 }
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🔄 DOM loaded, initializing app...');
     const app = new CycleSyncApp();
     app.init();
-    
-    // Add global test function for debugging
-    window.testCycleSyncNavigation = () => {
-        if (window.cycleSyncApp) {
-            return window.cycleSyncApp.testNavigation();
-        }
-        return null;
-    };
 });
 
-// Export for use in other modules
-export default CycleSyncApp;
+// Also try to initialize on window load as backup
+window.addEventListener('load', () => {
+    if (!window.cycleSyncApp) {
+        console.log('🔄 Window loaded, initializing app as backup...');
+        const app = new CycleSyncApp();
+        app.init();
+    }
+});
+
+console.log('✅ App.js loaded successfully');
