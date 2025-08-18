@@ -191,21 +191,211 @@ class CycleTracker {
             dataManagementModal.setAttribute('data-listener-attached', 'true');
         }
 
+        // Sync data from database
+        const syncDataBtn = document.getElementById('syncDataBtn');
+        if (syncDataBtn && !syncDataBtn.hasAttribute('data-listener-attached')) {
+            syncDataBtn.addEventListener('click', () => this.syncFromDatabase());
+            syncDataBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Sync data button event listener attached');
+        } else {
+            console.warn('❌ Sync data button not found');
+        }
+
+        const checkConsistencyBtn = document.getElementById('checkConsistencyBtn');
+        if (checkConsistencyBtn && !checkConsistencyBtn.hasAttribute('data-listener-attached')) {
+            checkConsistencyBtn.addEventListener('click', () => this.checkDataConsistency());
+            checkConsistencyBtn.setAttribute('data-listener-attached', 'true');
+            console.log('✅ Check consistency button event listener attached');
+        } else {
+            console.warn('❌ Check consistency button not found');
+        }
+
         console.log('✅ Cycle tracker event listeners setup complete');
     }
 
     // Data Management
     loadData() {
+        // Try to load from database first, with retry mechanism
+        this.loadFromDatabaseWithRetry().then(() => {
+            // Fallback to localStorage if database fails
+            if (this.cycles.length === 0) {
+                this.loadFromLocalStorage();
+            }
+            this.calculateAverageCycleLength();
+        });
+    }
+
+    async loadFromDatabaseWithRetry(maxRetries = 5, delay = 1000) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            console.log(`🔄 Attempt ${attempt}/${maxRetries} to load from database...`);
+            
+            if (window.supabase && typeof window.supabase.from === 'function') {
+                console.log('✅ Supabase client is ready, proceeding with database load');
+                return await this.loadFromDatabase();
+            }
+            
+            console.log(`⏳ Supabase not ready yet, waiting ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        
+        console.warn('⚠️ Supabase client never became ready, using localStorage');
+        return false;
+    }
+
+    async loadFromDatabase() {
+        console.log('🔍 Debug: Starting loadFromDatabase...');
+        console.log('🔍 Debug: window.supabase exists?', !!window.supabase);
+        console.log('🔍 Debug: window.supabase.from exists?', !!(window.supabase && window.supabase.from));
+        
+        if (!window.supabase || typeof window.supabase.from !== 'function') {
+            console.warn('⚠️ Supabase not available, will use localStorage');
+            console.log('🔍 Debug: Supabase client details:', {
+                exists: !!window.supabase,
+                type: typeof window.supabase,
+                hasFrom: !!(window.supabase && window.supabase.from),
+                methods: window.supabase ? Object.getOwnPropertyNames(window.supabase) : 'none'
+            });
+            return;
+        }
+
+        try {
+            console.log('📥 Loading cycles from database...');
+            
+            // Get the test user ID
+            const { data: users, error: userError } = await window.supabase
+                .from('users')
+                .select('id')
+                .limit(1);
+                
+            if (userError || !users || users.length === 0) {
+                console.error('❌ Could not get user ID:', userError);
+                return;
+            }
+            
+            const userId = users[0].id;
+            console.log('👤 Debug: Got user ID:', userId);
+            
+            // Load cycles for this user
+            const { data: cycles, error } = await window.supabase
+                .from('cycles')
+                .select('*')
+                .eq('user_id', userId)
+                .order('start_date', { ascending: true });
+                
+            if (error) {
+                console.error('❌ Failed to load cycles from database:', error);
+                return;
+            }
+            
+            console.log('🔍 Debug: Database response:', { cycles, error });
+            
+            if (cycles && cycles.length > 0) {
+                // Convert database format to app format
+                this.cycles = cycles.map(cycle => ({
+                    startDate: cycle.start_date + 'T00:00:00.000Z', // Convert to ISO string
+                    flow: cycle.flow_intensity,
+                    notes: cycle.notes || '',
+                    symptoms: cycle.symptoms || {},
+                    timestamp: cycle.created_at
+                }));
+                
+                console.log('✅ Loaded', this.cycles.length, 'cycles from database');
+            } else {
+                console.log('ℹ️ No cycles found in database');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading from database:', error);
+        }
+    }
+
+    loadFromLocalStorage() {
         const savedCycles = localStorage.getItem('cyclesync_cycles');
         if (savedCycles) {
             this.cycles = JSON.parse(savedCycles);
-            this.calculateAverageCycleLength();
+            console.log('📥 Loaded', this.cycles.length, 'cycles from localStorage');
         }
     }
 
     saveData() {
+        // Save to localStorage for backup
         localStorage.setItem('cyclesync_cycles', JSON.stringify(this.cycles));
+        
+        // Save to Supabase database with retry
+        this.saveToDatabaseWithRetry();
+        
         this.calculateAverageCycleLength();
+    }
+
+    async saveToDatabaseWithRetry(maxRetries = 3, delay = 500) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            if (window.supabase && typeof window.supabase.from === 'function') {
+                console.log('✅ Supabase client is ready, proceeding with database save');
+                return await this.saveToDatabase();
+            }
+            
+            console.log(`⏳ Supabase not ready for save, waiting ${delay}ms... (attempt ${attempt}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        
+        console.warn('⚠️ Supabase client never became ready for save, data only in localStorage');
+    }
+
+    async saveToDatabase() {
+        if (!window.supabase || typeof window.supabase.from !== 'function') {
+            console.warn('⚠️ Supabase not available, using localStorage only');
+            return;
+        }
+
+        try {
+            console.log('💾 Saving cycles to database...');
+            
+            // Get the test user ID (for now, we'll use the first user)
+            const { data: users, error: userError } = await window.supabase
+                .from('users')
+                .select('id')
+                .limit(1);
+                
+            if (userError || !users || users.length === 0) {
+                console.error('❌ Could not get user ID:', userError);
+                return;
+            }
+            
+            const userId = users[0].id;
+            console.log('👤 Using user ID:', userId);
+            
+            // Clear existing cycles for this user
+            const { error: deleteError } = await window.supabase
+                .from('cycles')
+                .delete()
+                .eq('user_id', userId);
+                
+            if (deleteError) {
+                console.warn('⚠️ Could not clear existing cycles:', deleteError);
+            }
+            
+            // Insert new cycles
+            const cyclesToInsert = this.cycles.map(cycle => ({
+                user_id: userId,
+                start_date: cycle.startDate.split('T')[0], // Extract just the date part
+                flow_intensity: cycle.flow,
+                notes: cycle.notes || null,
+                symptoms: cycle.symptoms || {}
+            }));
+            
+            const { data, error } = await window.supabase
+                .from('cycles')
+                .insert(cyclesToInsert);
+                
+            if (error) {
+                console.error('❌ Failed to save cycles to database:', error);
+            } else {
+                console.log('✅ Successfully saved', cyclesToInsert.length, 'cycles to database');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error saving to database:', error);
+        }
     }
 
     // Period Logging
@@ -579,30 +769,63 @@ class CycleTracker {
     }
 
     clearData() {
-        if (confirm('⚠️ Are you sure you want to clear ALL cycle data? This cannot be undone.')) {
-            // Clear from memory
-            this.cycles = [];
-            // Clear from localStorage
+        if (confirm('Are you sure you want to clear all cycle data? This will only clear local data - your database records will be preserved for recovery.')) {
+            // Clear localStorage only (preserve database as backup)
             localStorage.removeItem('cyclesync_cycles');
-            // Reset average cycle length
+            this.cycles = [];
             this.averageCycleLength = 28;
-            // Update all displays
+            
+            // Update display
             this.updateDisplay();
             this.renderCalendar();
-            this.updateTotalPeriods();
-            // Close any open modals
-            this.closePeriodModal();
-            this.closeDataManagement();
-            alert('✅ All cycle data has been cleared.');
-            console.log('🗑️ All cycle data cleared from memory and localStorage');
+            
+            console.log('🗑️ Local data cleared (database records preserved)');
+            alert('Local data cleared successfully! Your database records are preserved for recovery.');
         }
     }
 
+    // Sync data from database
+    async syncFromDatabase() {
+        if (!window.supabase || typeof window.supabase.from !== 'function') {
+            console.warn('⚠️ Supabase not available for sync');
+            return;
+        }
+
+        try {
+            console.log('🔄 Syncing data from database...');
+            
+            // Clear current localStorage data first to ensure clean sync
+            localStorage.removeItem('cyclesync_cycles');
+            this.cycles = [];
+            
+            // Load fresh data from database
+            await this.loadFromDatabase();
+            
+            // If database load was successful, save to localStorage for consistency
+            if (this.cycles.length > 0) {
+                localStorage.setItem('cyclesync_cycles', JSON.stringify(this.cycles));
+                console.log('✅ Data synced from database and localStorage updated');
+            } else {
+                console.log('ℹ️ No data found in database, localStorage cleared');
+            }
+            
+            // Update display
+            this.updateDisplay();
+            this.renderCalendar();
+            
+        } catch (error) {
+            console.error('❌ Failed to sync from database:', error);
+            // If sync fails, try to restore from localStorage as fallback
+            this.loadFromLocalStorage();
+        }
+    }
+
+    // Enhanced data management
     showDataManagement() {
         const modal = document.getElementById('dataManagementModal');
         if (modal) {
-            this.populatePeriodList();
             modal.classList.add('active');
+            this.populatePeriodList();
         }
     }
 
@@ -689,6 +912,54 @@ class CycleTracker {
         if (totalPeriodsElement) {
             totalPeriodsElement.textContent = this.cycles.length;
         }
+    }
+
+    // Check data consistency between localStorage and database
+    async checkDataConsistency() {
+        console.log('🔍 Checking data consistency...');
+        
+        // Get localStorage data
+        const localData = localStorage.getItem('cyclesync_cycles');
+        const localCycles = localData ? JSON.parse(localData) : [];
+        
+        console.log('📱 localStorage cycles:', localCycles.length);
+        
+        // Get database data
+        if (window.supabase && typeof window.supabase.from === 'function') {
+            try {
+                const { data: users, error: userError } = await window.supabase
+                    .from('users')
+                    .select('id')
+                    .limit(1);
+                    
+                if (!userError && users && users.length > 0) {
+                    const userId = users[0].id;
+                    const { data: dbCycles, error } = await window.supabase
+                        .from('cycles')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .order('start_date', { ascending: true });
+                        
+                    if (!error) {
+                        console.log('🗄️ Database cycles:', dbCycles.length);
+                        
+                        if (localCycles.length !== dbCycles.length) {
+                            console.warn('⚠️ Data inconsistency detected!');
+                            console.warn(`   localStorage: ${localCycles.length} cycles`);
+                            console.warn(`   Database: ${dbCycles.length} cycles`);
+                            return false;
+                        } else {
+                            console.log('✅ Data consistency check passed');
+                            return true;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error checking database consistency:', error);
+            }
+        }
+        
+        return null; // Couldn't check
     }
 }
 
