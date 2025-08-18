@@ -15,6 +15,7 @@ function initializeSupabase() {
     try {
         console.log('🔄 Initializing Supabase client...');
         console.log('🔍 Checking for CycleSyncConfig:', typeof CycleSyncConfig);
+        console.log('🔍 CycleSyncConfig details:', CycleSyncConfig);
         
         // Check if config is available
         if (typeof CycleSyncConfig !== 'undefined' && CycleSyncConfig.supabase) {
@@ -54,7 +55,10 @@ function initializeSupabase() {
 // Load Supabase from CDN
 function loadSupabaseFromCDN() {
     return new Promise((resolve, reject) => {
+        console.log('🌐 Attempting to load Supabase from CDN...');
+        
         if (document.querySelector('script[src*="supabase"]')) {
+            console.log('✅ Supabase script already exists in DOM');
             resolve();
             return;
         }
@@ -62,7 +66,12 @@ function loadSupabaseFromCDN() {
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/@supabase/supabase-js@2';
         script.onload = () => {
-            console.log('✅ Supabase loaded from CDN');
+            console.log('✅ Supabase loaded from CDN successfully');
+            console.log('🔍 Debug: window.supabase after CDN load:', {
+                exists: !!window.supabase,
+                type: typeof window.supabase,
+                methods: window.supabase ? Object.getOwnPropertyNames(window.supabase) : 'none'
+            });
             resolve();
         };
         script.onerror = () => {
@@ -70,6 +79,7 @@ function loadSupabaseFromCDN() {
             reject();
         };
         document.head.appendChild(script);
+        console.log('📜 Supabase script tag added to DOM');
     });
 }
 
@@ -77,6 +87,11 @@ function loadSupabaseFromCDN() {
 function createSupabaseClient(url, anonKey) {
     try {
         console.log('🔧 Creating Supabase client with:', { url, anonKey: anonKey.substring(0, 20) + '...' });
+        console.log('🔍 Debug: window.supabase before creation:', {
+            exists: !!window.supabase,
+            type: typeof window.supabase,
+            methods: window.supabase ? Object.getOwnPropertyNames(window.supabase) : 'none'
+        });
         
         // Try different ways to create the client
         if (window.supabase && window.supabase.createClient) {
@@ -91,9 +106,20 @@ function createSupabaseClient(url, anonKey) {
             return;
         }
         
+        console.log('🔍 Debug: supabase variable after creation:', {
+            exists: !!supabase,
+            type: typeof supabase,
+            hasFrom: !!(supabase && supabase.from)
+        });
+        
         // Make it available globally
         window.supabase = supabase;
         console.log('✅ Supabase client created successfully and available globally');
+        console.log('🔍 Debug: window.supabase after assignment:', {
+            exists: !!window.supabase,
+            type: typeof window.supabase,
+            hasFrom: !!(window.supabase && window.supabase.from)
+        });
         
         // Test connection
         testConnection();
@@ -136,6 +162,17 @@ if (typeof module !== 'undefined' && module.exports) {
 // Also make available globally for browser usage
 if (typeof window !== 'undefined') {
     window.initializeSupabase = initializeSupabase;
+    
+    // Debug: Check what we have
+    console.log('🔍 Debug: What is window.supabase?', {
+        exists: !!window.supabase,
+        type: typeof window.supabase,
+        hasFrom: !!(window.supabase && window.supabase.from),
+        methods: window.supabase ? Object.getOwnPropertyNames(window.supabase) : 'none',
+        supabaseVariable: !!supabase,
+        supabaseType: typeof supabase
+    });
+    
     console.log('✅ Supabase client module loaded and available globally');
 }
 
